@@ -15,12 +15,7 @@ class ChatViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var messageTextfield: UITextField!
     
-    var messages: [Message] = [
-        
-        Message(sender: "zaini@outlook.com", body: "Hello"),
-        Message(sender: "Ali@outlook.com", body: "Hi"),
-        Message(sender: "zaini@outlook.com", body: "What's up?")
-    ]
+    var messages: [Message] = []
     
     let db = Firestore.firestore()
     
@@ -38,7 +33,7 @@ class ChatViewController: UIViewController {
     
     func loadMessages() {
         
-        db.collection(K.FStore.collectionName).addSnapshotListener { QuerySnapshot, error in
+        db.collection(K.FStore.collectionName).order(by: K.FStore.dateField).addSnapshotListener { QuerySnapshot, error in
             self.messages = [];
             if let e = error {
                 print(e.localizedDescription)
@@ -49,7 +44,7 @@ class ChatViewController: UIViewController {
                         let data = doc.data()
                         if let messageSender = data[K.FStore.senderField] as? String, let message  = data[K.FStore.bodyField] as? String {
                             let newMessage = Message(sender: messageSender, body: message)
-                            self.messages.insert(newMessage,at: 0);
+                            self.messages.append(newMessage);
                             
                             DispatchQueue.main.async {
                                 self.tableView.reloadData()
@@ -68,7 +63,8 @@ class ChatViewController: UIViewController {
             
             db.collection(K.FStore.collectionName).addDocument(data: [
                 K.FStore.senderField: sender,
-                K.FStore.bodyField: messageBody
+                K.FStore.bodyField: messageBody,
+                K.FStore.dateField: Date().timeIntervalSince1970
             ]) { error in
                 if let e = error {
                     print(e.localizedDescription)
@@ -101,8 +97,6 @@ extension ChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: K.cellIdentifier, for: indexPath) as! MessageCell;
-        //var content = cell.defaultContentConfiguration();
-        //content.text = messages[indexPath.row].body;
         cell.label.text = messages[indexPath.row].body;
         return cell;
     }
