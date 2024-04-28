@@ -12,10 +12,22 @@ class WelcomeViewController: UIViewController {
 
     @IBOutlet weak var titleLabel: UILabel!
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.isNavigationBarHidden = true
+        print("Hello! I am View Will Appear!");
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.isNavigationBarHidden = false
+        print("Hello! view Will Disappear!");
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        animateWelcomeText();       
+        print("Hello! viewDidLoad!");
+        animateWelcomeText();
     }
     
     func animateWelcomeText() {
